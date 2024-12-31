@@ -152,7 +152,7 @@ def main():
     if cmd[1] == "init" and len(cmd) == 3:
         if not os.path.exists(cmd[2]):
             os.mkdir(cmd[2])
-        with open(f"{cmd[2]}/bot.py", "w") as f:
+        with open(f"{cmd[2]}/main.py", "w") as f:
             f.write(aiogram_no_template)
         with open(f"{cmd[2]}/requirements.txt", "w") as f:
             f.write("aiogram")
@@ -165,7 +165,7 @@ aiogram:
     elif cmd[1] == "init" and len(cmd) == 4 and cmd[3] == "--with-template":
         if not os.path.exists(cmd[2]):
             os.mkdir(cmd[2])
-        with open(f"{cmd[2]}/bot.py", "w") as f:
+        with open(f"{cmd[2]}/main.py", "w") as f:
             f.write(aiogram_no_template)
         with open(f"{cmd[2]}/requirements.txt", "w") as f:
             f.write("aiogram\nenvirons")
