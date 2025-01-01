@@ -1,7 +1,11 @@
+import asyncio
+import importlib
 import sys
 import os
+from hupper import start_reloader
+from colorama import Fore
 
-# Your existing templates
+
 aiogram_no_template = """from aiogram import Bot, Dispatcher, types
 from aiogram.filters import CommandStart
 import asyncio
@@ -18,13 +22,12 @@ async def echo(message: types.Message):
     await message.answer(message.text)
 
 async def main():
-    logging.basicConfig(level=logging.INFO)
     bot = Bot(token="Bot token")
-    dp = Dispatcher(bot)
-    await dp.start_polling()
+    await dp.start_polling(bot)
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     asyncio.run(main())
 """
 
@@ -147,77 +150,94 @@ def get_inline_keyboard():
     ])
     return keyboards"""
 
+usage ='''
+aiogram-cli v1.0.4
+Usage:
+  aiogram-cli init <folder_name>                  Initialize a bot project
+  aiogram-cli init <folder_name> --with-template  Initialize a bot project with template files
+  aiogram-cli run <bot_file.py>                   Run the specified bot file
+  aiogram-cli -h | --help                         Show this message
+'''
+
+def run_bot_file(bot_file):
+    # This function will be used to run the bot file
+    asyncio.run(importlib.import_module(bot_file).main())
+
+
 def main():
     cmd = sys.argv
+    if len(cmd) < 2:
+        print("Usage: aiogram-cli -h or --help for instructions.")
+        return
+
     if cmd[1] == "init" and len(cmd) == 3:
-        if not os.path.exists(cmd[2]):
-            os.mkdir(cmd[2])
-        with open(f"{cmd[2]}/main.py", "w") as f:
+        folder = cmd[2]
+        if not os.path.exists(folder):
+            os.mkdir(folder)
+        with open(f"{folder}/main.py", "w") as f:
             f.write(aiogram_no_template)
-        with open(f"{cmd[2]}/requirements.txt", "w") as f:
+        with open(f"{folder}/requirements.txt", "w") as f:
             f.write("aiogram")
-    elif cmd[1] == ("-h" or "--help"):
-        print("""Usage:
-aiogram:
-      init <path> : required   initialize the project
-      --with-template: optional    initialize the project with template
-""")
+        print(Fore.GREEN + "Your Project is successfully created!" + Fore.RESET)
     elif cmd[1] == "init" and len(cmd) == 4 and cmd[3] == "--with-template":
-        if not os.path.exists(cmd[2]):
-            os.mkdir(cmd[2])
-        with open(f"{cmd[2]}/main.py", "w") as f:
+        folder = cmd[2]
+        if not os.path.exists(folder):
+            os.mkdir(folder)
+
+        with open(f"{folder}/main.py", "w") as f:
             f.write(aiogram_no_template)
-        with open(f"{cmd[2]}/requirements.txt", "w") as f:
+        with open(f"{folder}/requirements.txt", "w") as f:
             f.write("aiogram\nenvirons")
-        with open(f"{cmd[2]}/data.py", 'w') as f:
+        with open(f"{folder}/data.py", 'w') as f:
             f.write(environs)
-        os.makedirs(f"{cmd[2]}/handlers", mode=777, exist_ok=True)
-        with open(f"{cmd[2]}/handlers/__init__.py", "w") as f:
+        os.makedirs(f"{folder}/handlers", mode=0o777, exist_ok=True)
+        with open(f"{folder}/handlers/__init__.py", "w") as f:
             f.write(handerls_init)
-        os.makedirs(f"{cmd[2]}/handlers/users", mode=777, exist_ok=True)
-        with open(f"{cmd[2]}/handlers/users/__init__.py", "w") as f:
-            f.write(users_init)
-        with open(f"{cmd[2]}/handlers/users/start.py", "w") as f:
+
+        os.makedirs(f"{folder}/handlers/users", mode=0o777, exist_ok=True)
+        with open(f"{folder}/handlers/users/start.py", "w") as f:
             f.write(users_start)
-        with open(f"{cmd[2]}/handlers/users/help.py", "w") as f:
+        with open(f"{folder}/handlers/users/help.py", "w") as f:
             f.write(users_help)
-        with open(f"{cmd[2]}/handlers/users/echo.py", "w") as f:
+        with open(f"{folder}/handlers/users/echo.py", "w") as f:
             f.write(users_echo)
-        os.makedirs(f"{cmd[2]}/handlers/channels", mode=777, exist_ok=True)
-        os.makedirs(f"{cmd[2]}/handlers/groups", mode=777, exist_ok=True)
-        os.makedirs(f"{cmd[2]}/handlers/groups", mode=777, exist_ok=True)
-        with open(f"{cmd[2]}/handlers/groups/__init__.py", "w") as f:
-            f.write(groups_init)
-        with open(f"{cmd[2]}/handlers/groups/messages.py", "w") as f:
+
+        os.makedirs(f"{folder}/handlers/channels", mode=0o777, exist_ok=True)
+        os.makedirs(f"{folder}/handlers/groups", mode=0o777, exist_ok=True)
+        with open(f"{folder}/handlers/groups/messages.py", "w") as f:
             f.write(groups_messages)
-        os.makedirs(f"{cmd[2]}/handlers/channels", mode=777, exist_ok=True)
-        with open(f"{cmd[2]}/handlers/channels/__init__.py", "w") as f:
-            f.write(channels_init)
-        with open(f"{cmd[2]}/handlers/channels/posts.py", "w") as f:
+        with open(f"{folder}/handlers/channels/posts.py", "w") as f:
             f.write(channels_posts)
-        with open(f"{cmd[2]}/.gitignore", 'w') as f:
+
+        with open(f"{folder}/.gitignore", 'w') as f:
             f.write(".env")
-        with open(f"{cmd[2]}/.env", 'w') as f:
-            f.write("""BOT_TOKEN=telegram_bot_token""")
-        with open(f"{cmd[2]}/utils.py", "w") as f:
+        with open(f"{folder}/.env", 'w') as f:
+            f.write("BOT_TOKEN=your_bot_token_here")
+        with open(f"{folder}/utils.py", "w") as f:
             f.write(utils)
-        os.makedirs(f"{cmd[2]}/keyboards", mode=777, exist_ok=True)
-        with open(f"{cmd[2]}/keyboards/__init__.py", "w") as f:
+
+        os.makedirs(f"{folder}/keyboards", mode=0o777, exist_ok=True)
+        with open(f"{folder}/keyboards/__init__.py", "w") as f:
             f.write("from .keyboards import get_keyboard\nfrom .inlinekeyboards import get_inline_keyboard")
-        with open(f"{cmd[2]}/keyboards/keyboards.py", "w") as f:
+        with open(f"{folder}/keyboards/keyboards.py", "w") as f:
             f.write(keyboards)
-        with open(f"{cmd[2]}/keyboards/inlinekeyboards.py", "w") as f:
+        with open(f"{folder}/keyboards/inlinekeyboards.py", "w") as f:
             f.write(inline_keyboards)
-        os.makedirs(f"{cmd[2]}/states", mode=777, exist_ok=True)
-        with open(f"{cmd[2]}/states/__init__.py", "w") as f:
-            f.write("")
+
+        os.makedirs(f"{folder}/states", mode=0o777, exist_ok=True)
+
+    elif cmd[1] == "run":
+        if len(cmd) == 3:
+            bot_file = cmd[2]
+            reloader = start_reloader(run_bot_file(bot_file))  # Use regular function here
+            asyncio.run(importlib.import_module(bot_file).main())
+        else:
+            print("Usage: aiogram-cli run <bot_file.py>")
+    elif cmd[1] in ("-h", "--help"):
+        print(usage)
     else:
-        print("Error command")
-        print("""Usage:
-aiogram:
-      init <path> : required   initialize the project
-      --with-template: optional    initialize the project with template
-""")
+        print(f"Error: Nomalum komanda '{cmd[1]}'")
+        print(usage)
 
 if __name__ == "__main__":
     main()
