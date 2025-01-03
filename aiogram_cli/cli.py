@@ -9,6 +9,7 @@ aiogram_no_template = """from aiogram import Bot, Dispatcher, types
 from aiogram.filters import CommandStart
 import asyncio
 import logging
+from data import TOKEN
 
 dp = Dispatcher()
 
@@ -21,7 +22,6 @@ async def echo(message: types.Message):
     await message.answer(message.text)
 
 async def main():
-    TOKEN = "bot_toknen"
     bot = Bot(token=TOKEN)
     await dp.start_polling(bot)
 
@@ -31,7 +31,7 @@ if __name__ == "__main__":
     asyncio.run(main())
 """
 
-handerls_init = """from .users import user_router
+handers_init = """from .users import user_router
 from .groups import group_router
 from .channels import channel_router
 
@@ -41,6 +41,14 @@ def register_all_handlers(router):
     router.include_router(channel_router)
 """
 
+users_init_with_admin = """from .admin import admin_router
+from .start import start_router
+from .help import help_router
+from .echo import echo_router
+
+user_router = admin_router
+user_router.include_routers(start_router,help_router, echo_router)
+"""
 users_init = """from .start import start_router
 from .help import help_router
 from .echo import echo_router
@@ -111,7 +119,8 @@ environs = """from environs import Env
 env = Env()
 env.read_env()
 
-TOKEN = env.str("BOT_TOKEN")"""
+TOKEN = env.str("BOT_TOKEN")
+"""
 
 utils = """from aiogram import Bot
 from aiogram.dispatcher.router import Router
@@ -178,6 +187,43 @@ async def start_command(message: Message, bot: Bot):
         await message.answer(f"Salom {message.from_user.full_name}")
 """
 
+admin_handler = """from aiogram import Router, F
+from aiogram.types import Message
+from data import ADMIN_ID
+
+admin_router = Router()
+
+@admin_router.message(F.chat.id == ADMIN_ID)
+async def admin_handler(message: Message):
+    await message.answer("Salom Admin")
+"""
+
+aiogram_with_template = """import asyncio
+from aiogram import Dispatcher
+from utils import bot, storage, router, set_commands
+from handlers import register_all_handlers
+import logging
+
+async def main():
+    dp = Dispatcher(storage=storage)
+
+    dp.include_router(router)
+
+    register_all_handlers(router)
+
+    await set_commands(bot)
+
+    try:
+        await dp.start_polling(bot)
+    finally:
+        await bot.session.close()
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    asyncio.run(main())
+"""
+
+
 def run_bot_file(bot_file):
     # This function will be used to run the bot file
     asyncio.run(importlib.import_module(bot_file).main())
@@ -189,7 +235,7 @@ def main():
         return
 
     if cmd[0] == "init" and len(cmd) == 2:
-        folder = cmd[2]
+        folder = cmd[1]
         if not os.path.exists(folder):
             os.mkdir(folder)
         with open(f"{folder}/main.py", "w") as f:
@@ -203,14 +249,14 @@ def main():
             os.mkdir(folder)
 
         with open(f"{folder}/main.py", "w") as f:
-            f.write(aiogram_no_template)
+            f.write(aiogram_with_template)
         with open(f"{folder}/requirements.txt", "w") as f:
             f.write("aiogram\nenvirons")
         with open(f"{folder}/data.py", 'w') as f:
             f.write(environs)
         os.makedirs(f"{folder}/handlers", mode=0o777, exist_ok=True)
         with open(f"{folder}/handlers/__init__.py", "w") as f:
-            f.write(handerls_init)
+            f.write(handers_init)
 
         os.makedirs(f"{folder}/handlers/users", mode=0o777, exist_ok=True)
         with open(f"{folder}/handlers/users/start.py", "w") as f:
@@ -219,13 +265,19 @@ def main():
             f.write(users_help)
         with open(f"{folder}/handlers/users/echo.py", "w") as f:
             f.write(users_echo)
+        with open(f"{cmd[1]}/handlers/users/__init__.py", "w") as f:
+            f.write(users_init)
 
         os.makedirs(f"{folder}/handlers/channels", mode=0o777, exist_ok=True)
         os.makedirs(f"{folder}/handlers/groups", mode=0o777, exist_ok=True)
         with open(f"{folder}/handlers/groups/messages.py", "w") as f:
             f.write(groups_messages)
+        with open(f"{cmd[1]}/handlers/groups/__init__.py", "w") as f:
+            f.write(groups_init)
         with open(f"{folder}/handlers/channels/posts.py", "w") as f:
             f.write(channels_posts)
+        with open(f"{cmd[1]}/handlers/channels/__init__.py", "w") as f:
+            f.write(channels_init)
 
         with open(f"{folder}/.gitignore", 'w') as f:
             f.write(".env")
@@ -260,6 +312,20 @@ def main():
             try:
                 with open(f"{cmd[2]}/handlers/users/start.py", "w") as f:
                     f.write(force_follow_to_channel_start_handler)
+                print(Fore.GREEN + "Majburiy obua successfully added" + Fore.RESET)
+            except:
+                print(Fore.RED + "XATOLIK: papka topilmadi, papka nomini to'g'ri yozganligizga ishon hosil qiling" + Fore.RESET)
+        elif cmd[1] == "admin-handler" and len(cmd) == 3:
+            try:
+                with open(f"{cmd[2]}/handlers/users/admin.py", "w") as f:
+                    f.write(admin_handler)
+                with open(f"{cmd[2]}/handlers/users/__init__.py", "w") as f:
+                    f.write(users_init_with_admin)
+                with open(f"{cmd[2]}/.env", "a") as f:
+                    f.write("\nADMIN_ID=your_admin_id_here")
+                with open(f"{cmd[2]}/data.py", "a") as f:
+                    f.write("""\nADMIN_ID = env.int("ADMIN_ID")""")
+                print(Fore.GREEN + "Admin Handler muvaffaqiyatli qo'shildi" + Fore.RESET)
             except:
                 print(Fore.RED + "XATOLIK: papka topilmadi, papka nomini to'g'ri yozganligizga ishon hosil qiling" + Fore.RESET)
         elif len(cmd) == 2:
