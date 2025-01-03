@@ -160,7 +160,7 @@ def get_inline_keyboard():
     return keyboards"""
 
 usage ='''
-aiogram-cli v1.0.5
+aiogram-cli v1.0.8
 
 Usage:
   aiogram-cli init <folder_name>                  Initialize a bot project
