@@ -165,7 +165,11 @@ aiogram-cli v1.0.8
 Usage:
   aiogram-cli init <folder_name>                  Initialize a bot project
   aiogram-cli init <folder_name> --with-template  Initialize a bot project with template files
-  aiogram-cli run <bot_file.py>                   Run the specified bot file (ishlamayapti)
+  aiogram-cli run <bot_file.py>                   Run the specified bot file
+  aiogram-cli add admin-handler                   Add admin handler
+  aiogram-cli add force-follow-to-channel-handler Add Majburiy Obuna handler
+  aiogram-cli add phone-number-handler            Add a handler which handles phone number
+  aiogram-cli add location-handler                Add a handler which handles location
   aiogram-cli -h | --help                         Show this message
 '''
 
