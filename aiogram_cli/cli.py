@@ -160,18 +160,18 @@ def get_inline_keyboard():
     return keyboards"""
 
 usage ='''
-aiogram-cli v1.0.8
+aiogram-cli v1.0.5
 
 Usage:
-  aiogram-cli init <folder_name>                  Initialize a bot project
-  aiogram-cli init <folder_name> --with-template  Initialize a bot project with template files
-  aiogram-cli run <bot_file.py>                   Run the specified bot file
-  aiogram-cli add admin-handler                   Add admin handler
-  aiogram-cli add force-follow-to-channel-handler Add Majburiy Obuna handler
-  aiogram-cli add phone-number-handler            Add a handler which handles phone number
-  aiogram-cli add location-handler                Add a handler which handles location
-  aiogram-cli -h | --help                         Show this message
+  aiogram-cli init <folder_name>                  Initialize a bot project with template files
 '''
+#   aiogram-cli run <bot_file.py>                   Run the specified bot file
+#   aiogram-cli add admin-handler                   Add admin handler
+#   aiogram-cli add force-follow-to-channel-handler Add Majburiy Obuna handler
+#   aiogram-cli add phone-number-handler            Add a handler which handles phone number
+#   aiogram-cli add location-handler                Add a handler which handles location
+#   aiogram-cli -h | --help                         Show this message
+# '''
 
 force_follow_to_channel_start_handler = """from aiogram import Router
 from aiogram.types import Message
@@ -243,7 +243,7 @@ async def receive_location(message: Message):
     await message.answer(f"latitude: {latitude}, longitude: {longitude}")"""
 
 
-def create_project_with_template():
+def create_project():
     cmd = sys.argv[1:]
     folder = cmd[1]
     if not os.path.exists(folder):
@@ -301,107 +301,38 @@ def create_project_with_template():
     with open(f"{folder}/middleware/__init__.py", "w") as f:
         f.write("")
 
+    with open(f"{folder}/middleware/middleware.py", "w") as f:
+        f.write("")
+
     with open(f"{folder}/states/__init__.py", "w") as f:
+        f.write("")
+
+    with open(f"{folder}/states/states.py", "w") as f:
         f.write("")
 
     print(Fore.GREEN + "Your Project is successfully created!" + Fore.RESET)
 
-    # elif cmd[0] == "run":
-    #     if len(cmd) == 2:
-    #         import os
-    #         os.system(f"watchmedo auto-restart --patterns=\"*.py\" --recursive -- python {cmd[1]}")
-    #     else:
-    #         print("Usage: aiogram-cli run <bot_file.py>")
-# 
-#     elif cmd[0] == "add":
-#         if len(cmd) == 3:
-#             if cmd[1] == "force-follow-to-channel":
-#                 try:
-#                     with open(f"{cmd[2]}/handlers/users/start.py", "w") as f:
-#                         f.write(force_follow_to_channel_start_handler)
-#                     print(Fore.GREEN + "Majburiy obua successfully added" + Fore.RESET)
-#                 except:
-#                     print(Fore.RED + "XATOLIK: papka topilmadi, papka nomini to'g'ri yozganligizga ishon hosil qiling" + Fore.RESET)
-#             elif cmd[1] == "admin-handler":
-#                 try:
-#                     with open(f"{cmd[2]}/handlers/users/admin.py", "w") as f:
-#                         f.write(admin_handler)
-#                     with open(f"{cmd[2]}/handlers/users/__init__.py", "w") as f:
-#                         f.write(users_init_with_admin)
-#                     with open(f"{cmd[2]}/.env", "a") as f:
-#                         f.write("\nADMIN_ID=your_admin_id_here")
-#                     with open(f"{cmd[2]}/data.py", "a") as f:
-#                         f.write("""\nADMIN_ID = env.int("ADMIN_ID")""")
-#                     print(Fore.GREEN + "Admin Handler muvaffaqiyatli qo'shildi" + Fore.RESET)
-#                 except:
-#                     print(Fore.RED + "XATOLIK: papka topilmadi, papka nomini to'g'ri yozganligizga ishon hosil qiling" + Fore.RESET)
-#             elif cmd[1] == "phone-number-handler":
-#                 with open(f"{cmd[2]}/handlers/users/echo.py", "a") as f:
-#                     f.write(phone_number_handler)
-#             elif cmd[1] == "location-handler":
-#                 with open(f"{cmd[2]}/handlers/users/echo.py", "a") as f:
-#                     f.write(location_handler)
-#             else:
-#                 print(Fore.RED + f"ERROR: {cmd[1]} nomli handler mavjud emas" + Fore.RESET)
-#         elif len(cmd) == 2:
-#             print(Fore.RED + "ERROR: papka nomini yozishni unitdingiz\n" + Fore.RESET + f"aiogram-cli.exe add {cmd[1]} <papka-nomi>")
-
-#     elif cmd[0] == "remove":
-#         if len(cmd) == 3:
-#             if cmd[1] == "force-follow-to-channel":
-#                 try:
-#                     with open(f"{cmd[2]}/handlers/users/start.py", "w") as f:
-#                         f.write(users_start)
-#                 except:
-#                     print(Fore.RED + "XATOLIK: papka topilmadi, papka nomini to'g'ri yozganligizga ishon hosil qiling" + Fore.RESET)
-#         elif len(cmd) == 2:
-#             print(Fore.RED + "ERROR: papka nomini yozishni unitdingiz\n" + Fore.RESET + f"aiogram-cli.exe remove {cmd[1]} <papka-nomi>")
-
-#     elif cmd[0] in ("-h", "--help"):
-#         print(usage)
-#     else:
-#         print(f"Error: Nomalum komanda '{cmd[0]}'")
-#         print(usage)
-
-
 def main():
     commands = sys.argv[1:]
+    print(commands)
+    print(len(commands))
     if len(commands) == 0:
         return usage
     elif len(commands) == 2:
         if commands[0] == "init":
-            create_project_with_template()
-    elif len(commands) == 1:
-        if commands[0] == "add":
-            if commands[1] == "force-follow-channel":
-                try:
-                    with open(f"{commands[2]}/handlers/users/start.py", "w") as f:
-                        f.write(force_follow_to_channel_start_handler)
-                    print(Fore.GREEN + "Majburiy obua successfully added" + Fore.RESET)
-                except:
-                    print(Fore.RED + "XATOLIK: papka topilmadi, papka nomini to'g'ri yozganligizga ishon hosil qiling" + Fore.RESET)
-            elif commands[1] == "admin-handler":
-                try:
-                    with open(f"{commands[2]}/handlers/users/admin.py", "w") as f:
-                        f.write(admin_handler)
-                    with open(f"{commands[2]}/handlers/users/__init__.py", "w") as f:
-                        f.write(users_init_with_admin)
-                    with open(f"{commands[2]}/.env", "a") as f:
-                        f.write("\nADMIN_ID=your_admin_id_here")
-                    with open(f"{commands[2]}/data.py", "a") as f:
-                        f.write("""\nADMIN_ID = env.int("ADMIN_ID")""")
-                    print(Fore.GREEN + "Admin Handler muvaffaqiyatli qo'shildi" + Fore.RESET)
-                except:
-                    print(Fore.RED + "XATOLIK: papka topilmadi, papka nomini to'g'ri yozganligizga ishon hosil qiling" + Fore.RESET)
-            
-        else:
-            print("ERROR")
+            create_project()
     elif len(commands) == 1:
         if commands[0] in ("-h", "--help"):
-            print(usage)
+            return usage
+        # if commands[0] == "add":
+            # return "Usage: aiogram-cli add <handler_name>\n\navailable handlers:\tforce-follow-to-channel\n\tadmin-handler\n\tphone-number-handler\n\tlocation-handler"
+        # elif commands[0] == "run":
+            # return "Usage: aiogram-cli run <bot_file.py>"
+        # else:
+            # return usage
     else:
         print(f"Error: Nomalum komanda '{commands[0]}'")
-        print(usage)
+        return usage
 
 if __name__ == "__main__":
-    main()
+    print(main())

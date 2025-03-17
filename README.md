@@ -18,13 +18,9 @@ loyiha yaratish
 ```
 aiogram-cli init <project-name>
 ```
-```path``` parametrini o'rniga loyixangiz nomini yozing yoki nuqta qo'yisangiz ham bo'ladi
+bu loyixani sodda template bilan yaratib beradi 
 
-loyihani template bilan yaratish
 ```
-aiogram-cli init bot --with-template
-```
-```--with-template``` bilan siz loyihani template bilan yaratishingiz mumkin
 
 men yasagan template sodda va u handlerlar keyboardlar statelarni a middlewareni o'z ichiga oladi va database yo'q (hozircha)
 
