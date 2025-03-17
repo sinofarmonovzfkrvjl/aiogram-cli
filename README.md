@@ -22,4 +22,4 @@ bu loyixani sodda template bilan yaratib beradi
 
 men yasagan template sodda va u handlerlar keyboardlar statelarni a middlewareni o'z ichiga oladi va database yo'q (hozircha)
 
-# Author: [@python-dev](https://t.me/python_dev323)
+# Author: [@Coder bro](https://t.me/coder_brooo)

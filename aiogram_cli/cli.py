@@ -324,12 +324,6 @@ def main():
     elif len(commands) == 1:
         if commands[0] in ("-h", "--help"):
             return usage
-        # if commands[0] == "add":
-            # return "Usage: aiogram-cli add <handler_name>\n\navailable handlers:\tforce-follow-to-channel\n\tadmin-handler\n\tphone-number-handler\n\tlocation-handler"
-        # elif commands[0] == "run":
-            # return "Usage: aiogram-cli run <bot_file.py>"
-        # else:
-            # return usage
     else:
         print(f"Error: Nomalum komanda '{commands[0]}'")
         return usage
