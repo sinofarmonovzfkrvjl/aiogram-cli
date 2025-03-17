@@ -109,7 +109,7 @@ from aiogram.types import Message
 
 channel_post_router = Router()
 
-@channel_post_router.message(F.chat.type == "channel")
+@channel_post_router.channel_post()
 async def handle_channel_post(message: Message):
     await message.answer("This is a channel post handler.")
 """
@@ -246,78 +246,65 @@ async def receive_location(message: Message):
 def create_project_with_template():
     cmd = sys.argv[1:]
     folder = cmd[1]
-    if len(cmd) == 0:
-        print(usage)
-        return cmd
+    if not os.path.exists(folder):
+        os.mkdir(folder)
 
-    if cmd[0] == "init" and len(cmd) == 2:
-        if not os.path.exists(folder):
-            os.mkdir(folder)
-        with open(f"{folder}/main.py", "w") as f:
-            f.write(aiogram_no_template)
-        with open(f"{folder}/requirements.txt", "w") as f:
-            f.write("aiogram")
-        print(Fore.GREEN + "Your Project is successfully created!" + Fore.RESET)
-    elif len(cmd) == 3 and cmd[0] == "init" and cmd[2] == "--with-template":
-        if not os.path.exists(folder):
-            os.mkdir(folder)
+    with open(f"{folder}/main.py", "w") as f:
+        f.write(aiogram_with_template)
+    with open(f"{folder}/requirements.txt", "w") as f:
+        f.write("aiogram\nenvirons")
+    with open(f"{folder}/data.py", 'w') as f:
+        f.write(environs)
+    os.makedirs(f"{folder}/handlers", mode=0o777, exist_ok=True)
+    with open(f"{folder}/handlers/__init__.py", "w") as f:
+        f.write(handlers_init)
 
-        with open(f"{folder}/main.py", "w") as f:
-            f.write(aiogram_with_template)
-        with open(f"{folder}/requirements.txt", "w") as f:
-            f.write("aiogram\nenvirons")
-        with open(f"{folder}/data.py", 'w') as f:
-            f.write(environs)
-        os.makedirs(f"{folder}/handlers", mode=0o777, exist_ok=True)
-        with open(f"{folder}/handlers/__init__.py", "w") as f:
-            f.write(handlers_init)
+    os.makedirs(f"{folder}/handlers/users", mode=0o777, exist_ok=True)
+    with open(f"{folder}/handlers/users/start.py", "w") as f:
+        f.write(users_start)
+    with open(f"{folder}/handlers/users/help.py", "w") as f:
+        f.write(users_help)
+    with open(f"{folder}/handlers/users/echo.py", "w") as f:
+        f.write(users_echo)
+    with open(f"{cmd[1]}/handlers/users/__init__.py", "w") as f:
+        f.write(users_init)
 
-        os.makedirs(f"{folder}/handlers/users", mode=0o777, exist_ok=True)
-        with open(f"{folder}/handlers/users/start.py", "w") as f:
-            f.write(users_start)
-        with open(f"{folder}/handlers/users/help.py", "w") as f:
-            f.write(users_help)
-        with open(f"{folder}/handlers/users/echo.py", "w") as f:
-            f.write(users_echo)
-        with open(f"{cmd[1]}/handlers/users/__init__.py", "w") as f:
-            f.write(users_init)
+    os.makedirs(f"{folder}/handlers/channels", mode=0o777, exist_ok=True)
+    os.makedirs(f"{folder}/handlers/groups", mode=0o777, exist_ok=True)
+    with open(f"{folder}/handlers/groups/messages.py", "w") as f:
+        f.write(groups_messages)
+    with open(f"{cmd[1]}/handlers/groups/__init__.py", "w") as f:
+        f.write(groups_init)
+    with open(f"{folder}/handlers/channels/posts.py", "w") as f:
+        f.write(channels_posts)
+    with open(f"{cmd[1]}/handlers/channels/__init__.py", "w") as f:
+        f.write(channels_init)
 
-        os.makedirs(f"{folder}/handlers/channels", mode=0o777, exist_ok=True)
-        os.makedirs(f"{folder}/handlers/groups", mode=0o777, exist_ok=True)
-        with open(f"{folder}/handlers/groups/messages.py", "w") as f:
-            f.write(groups_messages)
-        with open(f"{cmd[1]}/handlers/groups/__init__.py", "w") as f:
-            f.write(groups_init)
-        with open(f"{folder}/handlers/channels/posts.py", "w") as f:
-            f.write(channels_posts)
-        with open(f"{cmd[1]}/handlers/channels/__init__.py", "w") as f:
-            f.write(channels_init)
+    with open(f"{folder}/.gitignore", 'w') as f:
+        f.write(".env")
+    with open(f"{folder}/.env", 'w') as f:
+        f.write("BOT_TOKEN=your_bot_token_here")
+    with open(f"{folder}/utils.py", "w") as f:
+        f.write(utils)
 
-        with open(f"{folder}/.gitignore", 'w') as f:
-            f.write(".env")
-        with open(f"{folder}/.env", 'w') as f:
-            f.write("BOT_TOKEN=your_bot_token_here")
-        with open(f"{folder}/utils.py", "w") as f:
-            f.write(utils)
+    os.makedirs(f"{folder}/keyboards", mode=0o777, exist_ok=True)
+    with open(f"{folder}/keyboards/__init__.py", "w") as f:
+        f.write("from .keyboards import get_keyboard\nfrom .inlinekeyboards import get_inline_keyboard")
+    with open(f"{folder}/keyboards/keyboards.py", "w") as f:
+        f.write(keyboards)
+    with open(f"{folder}/keyboards/inlinekeyboards.py", "w") as f:
+        f.write(inline_keyboards)
 
-        os.makedirs(f"{folder}/keyboards", mode=0o777, exist_ok=True)
-        with open(f"{folder}/keyboards/__init__.py", "w") as f:
-            f.write("from .keyboards import get_keyboard\nfrom .inlinekeyboards import get_inline_keyboard")
-        with open(f"{folder}/keyboards/keyboards.py", "w") as f:
-            f.write(keyboards)
-        with open(f"{folder}/keyboards/inlinekeyboards.py", "w") as f:
-            f.write(inline_keyboards)
+    os.makedirs(f"{folder}/states", mode=0o777, exist_ok=True)
+    os.makedirs(f"{folder}/middleware", mode=0o777, exist_ok=True)
 
-        os.makedirs(f"{folder}/states", mode=0o777, exist_ok=True)
-        os.makedirs(f"{folder}/middleware", mode=0o777, exist_ok=True)
+    with open(f"{folder}/middleware/__init__.py", "w") as f:
+        f.write("")
 
-        with open(f"{folder}/middleware/__init__.py", "w") as f:
-            f.write("")
+    with open(f"{folder}/states/__init__.py", "w") as f:
+        f.write("")
 
-        with open(f"{folder}/states/__init__.py", "w") as f:
-            f.write("")
-
-        print(Fore.GREEN + "Your Project is successfully created!" + Fore.RESET)
+    print(Fore.GREEN + "Your Project is successfully created!" + Fore.RESET)
 
     # elif cmd[0] == "run":
     #     if len(cmd) == 2:
@@ -377,32 +364,14 @@ def create_project_with_template():
 #         print(usage)
 
 
-
-def create_project(folder):
-    if not os.path.exists(folder):
-        os.mkdir(folder)
-    with open(f"{folder}/main.py", "w") as f:
-        f.write(aiogram_no_template)
-    with open(f"{folder}/requirements.txt", "w") as f:
-        f.write("aiogram")
-
-    print(Fore.GREEN + "Your Project is successfully created!" + Fore.RESET)
-
-
 def main():
     commands = sys.argv[1:]
     if len(commands) == 0:
-        print(usage)
+        return usage
     elif len(commands) == 2:
         if commands[0] == "init":
-            folder = commands[1]
-            create_project(folder)
-    elif len(commands) == 3:
-        if commands[0] == "init" and commands[2].__contains__("--with-template"):
-            folder = commands[1]
             create_project_with_template()
     elif len(commands) == 1:
-        print(commands)
         if commands[0] == "add":
             if commands[1] == "force-follow-channel":
                 try:
