@@ -2,12 +2,12 @@ from setuptools import setup, find_packages
 
 setup(
     name="aiogram-cli",
-    version="1.0.8",
+    version="1.0.0",
     packages=find_packages(),
     install_requires=[
         "watchdog"
     ],
-    url="https://github.com/sinofarmonovzfkrvjl",
+    url="https://github.com/sinofarmonovzfkrvjl/aiogram-cli",
     author="https://t.me/python_dev323",
     description="bu aiogram kutubxonasi uchun aiogram cli (command line tool)",
     entry_points={
