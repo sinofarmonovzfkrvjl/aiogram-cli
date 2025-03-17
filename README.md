@@ -20,8 +20,6 @@ aiogram-cli init <project-name>
 ```
 bu loyixani sodda template bilan yaratib beradi 
 
-```
-
 men yasagan template sodda va u handlerlar keyboardlar statelarni a middlewareni o'z ichiga oladi va database yo'q (hozircha)
 
 loyihani ishga tushiish
