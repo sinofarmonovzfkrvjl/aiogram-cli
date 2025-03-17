@@ -1,2 +1,0 @@
-[console_scripts]
-aiogram-cli = aiogram_cli.cli:main
