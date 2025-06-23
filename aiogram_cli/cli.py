@@ -177,10 +177,9 @@ force_follow_to_channel_start_handler = """from aiogram import Router
 from aiogram.types import Message
 from aiogram.filters import CommandStart
 from utils import Bot
+from data import CHANNEL_ID
 
 start_router = Router()
-
-CHANNEL_ID = "kanal_id_sini_yozing"
 
 @start_router.message(CommandStart())
 async def start_command(message: Message, bot: Bot):
@@ -242,12 +241,34 @@ async def receive_location(message: Message):
     longitude = message.location.longitude
     await message.answer(f"latitude: {latitude}, longitude: {longitude}")"""
 
+database = """
+import sqlite3
 
-def create_project():
-    cmd = sys.argv[1:]
-    folder = cmd[1]
-    if not os.path.exists(folder):
-        os.mkdir(folder)
+def add_user(user_id, username):
+    con = sqlite3.connect("users.db")
+    con.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER UNIQUE, username TEXT)")
+
+    cursor = con.cursor()
+    cursor.execute("INSERT OR IGNORE INTO users (user_id, username) VALUES (?, ?)", (user_id, username))
+
+    con.commit()
+    con.close()
+
+
+def get_users():
+    con = sqlite3.connect("users.db")
+    cursor = con.cursor()
+
+    users = cursor.execute("SELECT * FROM users").fetchall()
+
+    con.close()
+
+    return users
+"""
+
+
+def create_project(folder: str):
+    os.makedirs(f"{folder}", exist_ok=True)
 
     with open(f"{folder}/main.py", "w") as f:
         f.write(aiogram_with_template)
@@ -266,18 +287,18 @@ def create_project():
         f.write(users_help)
     with open(f"{folder}/handlers/users/echo.py", "w") as f:
         f.write(users_echo)
-    with open(f"{cmd[1]}/handlers/users/__init__.py", "w") as f:
+    with open(f"{folder}/handlers/users/__init__.py", "w") as f:
         f.write(users_init)
 
     os.makedirs(f"{folder}/handlers/channels", mode=0o777, exist_ok=True)
     os.makedirs(f"{folder}/handlers/groups", mode=0o777, exist_ok=True)
     with open(f"{folder}/handlers/groups/messages.py", "w") as f:
         f.write(groups_messages)
-    with open(f"{cmd[1]}/handlers/groups/__init__.py", "w") as f:
+    with open(f"{folder}/handlers/groups/__init__.py", "w") as f:
         f.write(groups_init)
     with open(f"{folder}/handlers/channels/posts.py", "w") as f:
         f.write(channels_posts)
-    with open(f"{cmd[1]}/handlers/channels/__init__.py", "w") as f:
+    with open(f"{folder}/handlers/channels/__init__.py", "w") as f:
         f.write(channels_init)
 
     with open(f"{folder}/.gitignore", 'w') as f:
@@ -296,12 +317,9 @@ def create_project():
         f.write(inline_keyboards)
 
     os.makedirs(f"{folder}/states", mode=0o777, exist_ok=True)
-    os.makedirs(f"{folder}/middleware", mode=0o777, exist_ok=True)
+    os.makedirs(f"{folder}/middlewares", mode=0o777, exist_ok=True)
 
-    with open(f"{folder}/middleware/__init__.py", "w") as f:
-        f.write("")
-
-    with open(f"{folder}/middleware/middleware.py", "w") as f:
+    with open(f"{folder}/middlewares/__init__.py", "w") as f:
         f.write("")
 
     with open(f"{folder}/states/__init__.py", "w") as f:
@@ -312,21 +330,38 @@ def create_project():
 
     print(Fore.GREEN + "Your Project is successfully created!" + Fore.RESET)
 
+def create_project_without_template(folder: str):
+    os.mkdir(folder)
+    with open(f"{folder}/main.py", "w") as f:
+        f.write(aiogram_no_template)
+
+def subscription_middleware(folder):
+    try:
+        with open(f"{folder}/middlewares/subscription.py", "w") as f:
+            f.write("")
+    except FileNotFoundError:
+        print(Fore.RED + "Error: middlewares papkasi topilmadi" + Fore.RESET)
+
 def main():
     commands = sys.argv[1:]
-    print(commands)
-    print(len(commands))
     if len(commands) == 0:
-        return usage
-    elif len(commands) == 2:
-        if commands[0] == "init":
-            create_project()
+        print(usage)
     elif len(commands) == 1:
-        if commands[0] in ("-h", "--help"):
-            return usage
-    else:
-        print(f"Error: Nomalum komanda '{commands[0]}'")
-        return usage
+        print(usage)
+    elif len(commands) == 2:
+        if "init" in commands:
+            create_project(commands[1])
+        elif "add" in commands:
+            if "admin-handler" in commands:
+                with open(f"{commands[1]}/admin.py", "w") as f:
+                    f.write(admin_handler)
+            elif "force-follow-to-channel" in commands:
+                with open(f"{commands[1]}/start.py", "w") as f:
+                    f.write(force_follow_to_channel_start_handler)
+    elif len(commands) == 3:
+        if ("init" in commands) and ("--no-template" in commands):
+            create_project_without_template(commands[1])
+            
 
 if __name__ == "__main__":
-    print(main())
+    main()
